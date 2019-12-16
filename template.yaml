@@ -15,3 +15,13 @@ Resources:
       CodeUri: ap
       Handler: main.handler
       Runtime: python3.6
+      Timeout: 15
+      Events:
+        PullApDataHourly:
+          Type: Schedule
+          Properties:
+            Description: Pull latest data from Associated Press
+            Enabled: True
+            Schedule: rate(1 hour)
+      Policies:
+        - AWSLambdaExecute
