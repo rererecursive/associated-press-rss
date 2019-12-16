@@ -17,11 +17,40 @@ Resources:
       Runtime: python3.6
       Timeout: 15
       Events:
-        PullApDataHourly:
+        PullApTopNews:
           Type: Schedule
           Properties:
-            Description: Pull latest data from Associated Press
+            Description: Pull latest data from Associated Press Top News
             Enabled: True
             Schedule: rate(1 hour)
+            Input: '{"url": "https://apnews.com/apf-topnews","title": "AP Top News"}'
+        PullApSports:
+          Type: Schedule
+          Properties:
+            Description: Pull latest data from Associated Press Sports
+            Enabled: True
+            Schedule: rate(1 hour)
+            Input: '{"url": "https://apnews.com/apf-sports","title": "AP Sports"}'
+        PullApEntertainment:
+          Type: Schedule
+          Properties:
+            Description: Pull latest data from Associated Press Entertainment
+            Enabled: True
+            Schedule: rate(1 hour)
+            Input: '{"url": "https://apnews.com/apf-entertainment","title": "AP Entertainment"}'
+        PullApOddities:
+          Type: Schedule
+          Properties:
+            Description: Pull latest data from Associated Press Oddities
+            Enabled: True
+            Schedule: rate(1 hour)
+            Input: '{"url": "https://apnews.com/apf-oddities","title": "AP Oddities"}'
+        PullApTravel:
+          Type: Schedule
+          Properties:
+            Description: Pull latest data from Associated Press Travel
+            Enabled: True
+            Schedule: rate(1 hour)
+            Input: '{"url": "https://apnews.com/apf-travel","title": "AP Travel"}'
       Policies:
         - AWSLambdaExecute
