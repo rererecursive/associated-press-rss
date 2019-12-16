@@ -12,7 +12,7 @@ class ApPipeline(object):
 
 	def __init__(self):
 		self.first_item = True
-		self.file_name = 'output.xml'
+		self.file_name = '/tmp/output.xml'
 		self.file_handler = open(self.file_name, 'ab')
 		self.exporter = RssXmlItemExporter(
 									self.file_handler,

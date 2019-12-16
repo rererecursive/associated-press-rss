@@ -1,8 +1,15 @@
 from dateutil import parser
+import boto3
 import json
+import logging
 import scrapy
 from scrapy.exporters import XmlItemExporter
 from scrapy.crawler import CrawlerProcess
+
+logging.getLogger('boto3').setLevel(logging.WARNING)
+logging.getLogger('botocore').setLevel(logging.WARNING)
+logging.getLogger('nose').setLevel(logging.WARNING)
+
 
 class ApSpider(scrapy.Spider):
     name = "ap"
@@ -41,8 +48,9 @@ class ApSpider(scrapy.Spider):
             }
 
 def handler(event, context):
-    from scrapy.crawler import CrawlerProcess
     from scrapy.utils.project import get_project_settings
+    from scrapy.settings import Settings
+    import settings as my_settings
 
     print("Received event:", json.dumps(event))
 
@@ -50,13 +58,23 @@ def handler(event, context):
         'USER_AGENT': 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1)'
     })
 
-
-    process = CrawlerProcess(get_project_settings())
+    crawler_settings = Settings()
+    crawler_settings.setmodule(my_settings)
+    process = CrawlerProcess(settings=crawler_settings)
+    # process = CrawlerProcess(get_project_settings())
 
     process.crawl(ApSpider)
     process.start() # the script will block here until the crawling is finished
 
-    print('All done.')
+    print('Crawling complete.')
 
-# if __name__ == "__main__":
-#     handler('', '')
+    bucket = 'my-versioning-app'
+    key = 'output.xml'
+
+    print("Copying object to S3: '%s/%s'..." % (bucket, key))
+    client = boto3.client('s3', region_name='ap-southeast-2')
+    client.put_object(Bucket=bucket, Key=key, Body=open('/tmp/output.xml', 'rb'))
+    print("Done.")
+
+if __name__ == "__main__":
+    handler('', '')
