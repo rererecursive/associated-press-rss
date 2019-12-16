@@ -13,18 +13,20 @@ logging.getLogger('nose').setLevel(logging.WARNING)
 
 class ApSpider(scrapy.Spider):
     name = "ap"
-    start_urls = [
-        'https://apnews.com/apf-topnews'
-    ]
+
+    def __init__(self, start_urls=[], feed_title='', *args, **kwargs):
+      super().__init__(**kwargs)  # python3
+      self.start_urls = start_urls
+      self.feed_title = feed_title
 
     def parse(self, response):
         items =  response.xpath('//div[re:test(@class, "^FeedCard")]')
         base_url = 'https://apnews.com'
 
         yield {
-          'description': 'AP Top News',
-          'link': 'https://apnews.com/apf-topnews',
-          'title': 'AP Top News'
+          'description': self.feed_title,
+          'link': self.start_urls[0],
+          'title': self.feed_title
         }
 
         for item in items:
@@ -34,10 +36,9 @@ class ApSpider(scrapy.Spider):
             pub_date = item.xpath('.//span[re:test(@class, "^Timestamp Component")]/@data-source').get()
 
             # Fri, 13 Dec 2019 18:56:20 +0000
+            if not title or not identifier or not pub_date:
+              continue
             pub_date_formatted = parser.parse(pub_date).strftime('%a, %d %b %Y %H:%M:%S +0000')
-
-            if not identifier:
-                continue
 
             yield {
                 'title': title,
@@ -54,6 +55,10 @@ def handler(event, context):
 
     print("Received event:", json.dumps(event))
 
+    url = event['url']
+    title = event['title']
+    filename = event['url'].split('-')[-1]
+
     process = CrawlerProcess({
         'USER_AGENT': 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1)'
     })
@@ -61,15 +66,14 @@ def handler(event, context):
     crawler_settings = Settings()
     crawler_settings.setmodule(my_settings)
     process = CrawlerProcess(settings=crawler_settings)
-    # process = CrawlerProcess(get_project_settings())
 
-    process.crawl(ApSpider)
+    process.crawl(ApSpider, start_urls=[url], feed_title=title)
     process.start() # the script will block here until the crawling is finished
 
     print('Crawling complete.')
 
     bucket = 'my-versioning-app'
-    key = 'output.xml'
+    key = 'output-%s.xml' % (filename)
 
     print("Copying object to S3: '%s/%s'..." % (bucket, key))
     client = boto3.client('s3', region_name='ap-southeast-2')
