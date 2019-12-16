@@ -1,6 +1,8 @@
 from dateutil import parser
+import json
 import scrapy
 from scrapy.exporters import XmlItemExporter
+from scrapy.crawler import CrawlerProcess
 
 class ApSpider(scrapy.Spider):
     name = "ap"
@@ -37,3 +39,24 @@ class ApSpider(scrapy.Spider):
                 'guid': base_url + identifier,
                 'pub_date': pub_date_formatted
             }
+
+def handler(event, context):
+    from scrapy.crawler import CrawlerProcess
+    from scrapy.utils.project import get_project_settings
+
+    print("Received event:", json.dumps(event))
+
+    process = CrawlerProcess({
+        'USER_AGENT': 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1)'
+    })
+
+
+    process = CrawlerProcess(get_project_settings())
+
+    process.crawl(ApSpider)
+    process.start() # the script will block here until the crawling is finished
+
+    print('All done.')
+
+# if __name__ == "__main__":
+#     handler('', '')
