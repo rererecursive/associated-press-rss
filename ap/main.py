@@ -2,6 +2,7 @@ from dateutil import parser
 import boto3
 import json
 import logging
+import os
 import scrapy
 from scrapy.exporters import XmlItemExporter
 from scrapy.crawler import CrawlerProcess
@@ -67,12 +68,14 @@ def handler(event, context):
     crawler_settings.setmodule(my_settings)
     process = CrawlerProcess(settings=crawler_settings)
 
+    print('Starting crawling...')
     process.crawl(ApSpider, start_urls=[url], feed_title=title)
     process.start() # the script will block here until the crawling is finished
 
     print('Crawling complete.')
+    process.stop()
 
-    bucket = 'my-versioning-app'
+    bucket = os.environ['BUCKET']
     key = 'output-%s.xml' % (filename)
 
     print("Copying object to S3: '%s/%s'..." % (bucket, key))
