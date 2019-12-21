@@ -10,10 +10,10 @@ from scrapy.utils.python import is_listlike
 
 class ApPipeline(object):
 
-	def __init__(self):
+	def __init__(self, file_name):
 		self.first_item = True
-		self.file_name = '/tmp/output.xml'
-		self.file_handler = open(self.file_name, 'ab')
+		self.file_name = file_name
+		self.file_handler = open(self.file_name, 'wb')
 		self.exporter = RssXmlItemExporter(
 									self.file_handler,
 									root_element='channel',
@@ -35,6 +35,12 @@ class ApPipeline(object):
 	def close_spider(self, spider):
 		self.exporter.finish_exporting()
 		self.file_handler.close()
+
+	@classmethod
+	def from_crawler(cls, crawler):
+		file_name = crawler.settings.__dict__['attributes']['LAMBDA_OUTPUT_FILENAME']
+		print("Output filename:", file_name)
+		return cls(file_name)
 
 
 class RssXmlItemExporter(XmlItemExporter):

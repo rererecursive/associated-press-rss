@@ -64,11 +64,17 @@ def handler(event, context):
     p.join()
 
 def run(event, context):
+    # event = { "url": "https://apnews.com/apf-topnews", "title": "AP Top News" }
+
     print("Received event:", json.dumps(event))
 
     url = event['url']
     title = event['title']
     filename = event['url'].split('-')[-1]
+
+    bucket = os.environ['BUCKET']
+    key = 'output-%s.xml' % (filename)
+    tmp_key = '/tmp/%s' % key
 
     process = CrawlerProcess({
         'USER_AGENT': 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1)'
@@ -76,6 +82,7 @@ def run(event, context):
 
     crawler_settings = Settings()
     crawler_settings.setmodule(my_settings)
+    crawler_settings.__dict__['attributes']['LAMBDA_OUTPUT_FILENAME'] = tmp_key
     process = CrawlerProcess(settings=crawler_settings)
 
     print('Starting crawling...')
@@ -85,12 +92,9 @@ def run(event, context):
     print('Crawling complete.')
     process.stop()
 
-    bucket = os.environ['BUCKET']
-    key = 'output-%s.xml' % (filename)
-
     print("Copying object to S3: '%s/%s'..." % (bucket, key))
     client = boto3.client('s3', region_name='ap-southeast-2')
-    client.put_object(Bucket=bucket, Key=key, Body=open('/tmp/output.xml', 'rb'))
+    client.put_object(Bucket=bucket, Key=key, Body=open(tmp_key, 'rb'))
     print("Done.")
 
 if __name__ == "__main__":
