@@ -4,8 +4,13 @@ import json
 import logging
 import os
 import scrapy
-from scrapy.exporters import XmlItemExporter
+from multiprocessing import Process
 from scrapy.crawler import CrawlerProcess
+from scrapy.exporters import XmlItemExporter
+from scrapy.settings import Settings
+from scrapy.utils.project import get_project_settings
+from twisted.internet import reactor
+import settings as my_settings
 
 logging.getLogger('boto3').setLevel(logging.WARNING)
 logging.getLogger('botocore').setLevel(logging.WARNING)
@@ -16,7 +21,7 @@ class ApSpider(scrapy.Spider):
     name = "ap"
 
     def __init__(self, start_urls=[], feed_title='', *args, **kwargs):
-      super().__init__(**kwargs)  # python3
+      super().__init__(**kwargs)
       self.start_urls = start_urls
       self.feed_title = feed_title
 
@@ -38,7 +43,7 @@ class ApSpider(scrapy.Spider):
 
             # Fri, 13 Dec 2019 18:56:20 +0000
             if not title or not identifier or not pub_date:
-              continue
+                continue
             pub_date_formatted = parser.parse(pub_date).strftime('%a, %d %b %Y %H:%M:%S +0000')
 
             yield {
@@ -49,11 +54,16 @@ class ApSpider(scrapy.Spider):
                 'pub_date': pub_date_formatted
             }
 
-def handler(event, context):
-    from scrapy.utils.project import get_project_settings
-    from scrapy.settings import Settings
-    import settings as my_settings
 
+def handler(event, context):
+    # Running in a new process is necessary to prevent Twisted's "ReactorNotRestartable" errors
+    # when the Lambda is re-used.
+    p = Process(target=run, args=(event,context))
+    print("Starting new process...")
+    p.start()
+    p.join()
+
+def run(event, context):
     print("Received event:", json.dumps(event))
 
     url = event['url']
@@ -70,7 +80,7 @@ def handler(event, context):
 
     print('Starting crawling...')
     process.crawl(ApSpider, start_urls=[url], feed_title=title)
-    process.start() # the script will block here until the crawling is finished
+    process.start() # The script will block here until the crawling is finished
 
     print('Crawling complete.')
     process.stop()
