@@ -18,7 +18,7 @@ class ApPipeline(object):
 									self.file_handler,
 									root_element='channel',
 									item_element='item',
-									fields_to_export = ['title', 'link', 'description', 'guid', 'pub_date'],
+									fields_to_export = ['title', 'link', 'description', 'guid', 'pubDate'],
 									indent=2)
 
 		self.exporter.start_exporting()

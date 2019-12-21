@@ -51,7 +51,7 @@ class ApSpider(scrapy.Spider):
                 'link': base_url + identifier,
                 'description': description,
                 'guid': base_url + identifier,
-                'pub_date': pub_date_formatted
+                'pubDate': pub_date_formatted
             }
 
 
