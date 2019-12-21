@@ -28,11 +28,17 @@ class ApSpider(scrapy.Spider):
     def parse(self, response):
         items =  response.xpath('//div[re:test(@class, "^FeedCard")]')
         base_url = 'https://apnews.com'
+        date_format = '%a, %d %b %Y %H:%M:%S +0000'
+
+        # Set the lastBuildDate as the most recent item in the feed
+        all_dates = response.xpath('//span[re:test(@class, "^Timestamp Component")]/@data-source')
+        sorted_dates = sorted(all_dates, key=lambda i: parser.parse(i.get()), reverse=True)
 
         yield {
           'description': self.feed_title,
           'link': self.start_urls[0],
-          'title': self.feed_title
+          'title': self.feed_title,
+          'lastBuildDate': parser.parse(sorted_dates[0].get()).strftime(date_format)
         }
 
         for item in items:
@@ -44,7 +50,7 @@ class ApSpider(scrapy.Spider):
             # Fri, 13 Dec 2019 18:56:20 +0000
             if not title or not identifier or not pub_date:
                 continue
-            pub_date_formatted = parser.parse(pub_date).strftime('%a, %d %b %Y %H:%M:%S +0000')
+            pub_date_formatted = parser.parse(pub_date).strftime(date_format)
 
             yield {
                 'title': title,
