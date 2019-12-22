@@ -18,7 +18,8 @@ class ApPipeline(object):
 
 	def process_item(self, item, spider):
 		if self.first_item:
-			self.exporter.export_item(item, start=False, end=False)
+			# The first item comes from main.py with the information for <channel>
+			self.exporter.export_item(item, write_start=False, write_end=False)
 			self.first_item = False
 		else:
 			self.exporter.export_item(item)
@@ -41,6 +42,7 @@ class RssXmlItemExporter(XmlItemExporter):
 		super().__init__(file, **kwargs)
 		self.root_root_element = 'rss'
 
+	# Override so that we can write two root elements
 	def start_exporting(self, attrs={}):
 		self.xg.startDocument()
 		self.xg.startElement(self.root_root_element, {'version': '2.0'})
@@ -48,12 +50,13 @@ class RssXmlItemExporter(XmlItemExporter):
 		self.xg.startElement(self.root_element, {})
 		self._beautify_newline(new_item=True)
 
-	def export_item(self, item, start=True, end=True):
-		if start:
+	def export_item(self, item, write_start=True, write_end=True):
+		if write_start:
 			self._beautify_indent(depth=1)
 			self.xg.startElement(self.item_element, {})
 			self._beautify_newline()
 
+		# Add the 'isPermalink' attribute to each RSS item
 		for name, value in self._get_serialized_fields(item, default_value=''):
 			attrs = {}
 			if name == 'guid':
@@ -61,17 +64,19 @@ class RssXmlItemExporter(XmlItemExporter):
 
 			self._export_xml_field(name, value, depth=2, attrs=attrs)
 
-		if end:
+		if write_end:
 			self._beautify_indent(depth=1)
 			self.xg.endElement(self.item_element)
 			self._beautify_newline(new_item=True)
 
+	# Override so that we can write two root elements
 	def finish_exporting(self):
 		self.xg.endElement(self.root_element)
 		self._beautify_newline(new_item=True)
 		self.xg.endElement(self.root_root_element)
 		self.xg.endDocument()
 
+	# Override so that we can pass in custom attrs to startElement()
 	def _export_xml_field(self, name, serialized_value, depth, attrs={}):
 		self._beautify_indent(depth=depth)
 		self.xg.startElement(name, attrs)
