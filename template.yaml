@@ -19,96 +19,97 @@ Resources:
       Policies:
         - AWSLambdaExecute
       Environment:
-        BUCKET: associated-press
+        Variables:
+          BUCKET: associated-press
       Events:
         PullApTopNews:
           Type: Schedule
           Properties:
             Description: Pull latest data from Associated Press Top News
-            Enabled: False
-            Schedule: rate(1 hour)
+            Enabled: True
+            Schedule: cron(0 * * * ? *)
             Input: '{"url": "https://apnews.com/apf-topnews","title": "AP Top News"}'
         PullApSports:
           Type: Schedule
           Properties:
             Description: Pull latest data from Associated Press Sports
-            Enabled: False
-            Schedule: rate(1 hour)
+            Enabled: True
+            Schedule: cron(5 * * * ? *)
             Input: '{"url": "https://apnews.com/apf-sports","title": "AP Sports"}'
         PullApEntertainment:
           Type: Schedule
           Properties:
             Description: Pull latest data from Associated Press Entertainment
-            Enabled: False
-            Schedule: rate(1 hour)
+            Enabled: True
+            Schedule: cron(10 * * * ? *)
             Input: '{"url": "https://apnews.com/apf-entertainment","title": "AP Entertainment"}'
         PullApOddities:
           Type: Schedule
           Properties:
             Description: Pull latest data from Associated Press Oddities
-            Enabled: False
-            Schedule: rate(1 hour)
+            Enabled: True
+            Schedule: cron(15 * * * ? *)
             Input: '{"url": "https://apnews.com/apf-oddities","title": "AP Oddities"}'
         PullApTravel:
           Type: Schedule
           Properties:
             Description: Pull latest data from Associated Press Travel
-            Enabled: False
-            Schedule: rate(1 hour)
-            Input: '{"url": "https://apnews.com/apf-travel","title": "AP Travel"}'
+            Enabled: True
+            Schedule: cron(20 * * * ? *)
+            Input: '{"url": "https://apnews.com/apf-Travel","title": "AP Travel"}'
         PullApLifestyle:
           Type: Schedule
           Properties:
             Description: Pull latest data from Associated Press Lifestyle
-            Enabled: False
-            Schedule: rate(1 hour)
+            Enabled: True
+            Schedule: cron(20 * * * ? *)
             Input: '{"url": "https://apnews.com/apf-lifestyle","title": "AP Lifestyle"}'
         PullApBusiness:
           Type: Schedule
           Properties:
             Description: Pull latest data from Associated Press Business
-            Enabled: False
-            Schedule: rate(1 hour)
+            Enabled: True
+            Schedule: cron(25 * * * ? *)
             Input: '{"url": "https://apnews.com/apf-business","title": "AP Business"}'
         PullApUsNews:
           Type: Schedule
           Properties:
             Description: Pull latest data from Associated Press US News
-            Enabled: False
-            Schedule: rate(1 hour)
+            Enabled: True
+            Schedule: cron(30 * * * ? *)
             Input: '{"url": "https://apnews.com/apf-usnews","title": "AP US News"}'
         PullApHealth:
           Type: Schedule
           Properties:
             Description: Pull latest data from Associated Press Health
-            Enabled: False
-            Schedule: rate(1 hour)
+            Enabled: True
+            Schedule: cron(35 * * * ? *)
             Input: '{"url": "https://apnews.com/apf-Health","title": "AP Health"}'
         PullApScience:
           Type: Schedule
           Properties:
             Description: Pull latest data from Associated Press Science
-            Enabled: False
-            Schedule: rate(1 hour)
+            Enabled: True
+            Schedule: cron(40 * * * ? *)
             Input: '{"url": "https://apnews.com/apf-science","title": "AP Science"}'
         PullApIntlNews:
           Type: Schedule
           Properties:
             Description: Pull latest data from Associated Press Intl News
-            Enabled: False
-            Schedule: rate(1 hour)
+            Enabled: True
+            Schedule: cron(45 * * * ? *)
             Input: '{"url": "https://apnews.com/apf-intlnews","title": "AP International News"}'
         PullApPolitics:
           Type: Schedule
           Properties:
             Description: Pull latest data from Associated Press Politics
-            Enabled: False
-            Schedule: rate(1 hour)
+            Enabled: True
+            Schedule: cron(50 * * * ? *)
             Input: '{"url": "https://apnews.com/apf-politics","title": "AP Politics"}'
         PullApReligion:
           Type: Schedule
           Properties:
             Description: Pull latest data from Associated Press Religion
-            Enabled: False
-            Schedule: rate(1 hour)
+            Enabled: True
+            Schedule: cron(55 * * * ? *)
             Input: '{"url": "https://apnews.com/apf-religion","title": "AP Religion"}'
