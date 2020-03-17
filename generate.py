@@ -54,4 +54,7 @@ config = {'config': [
 
 file = open('template.yaml').read()
 content = Template(file).render(config)
-print(content)
+
+print("Generating: template.out.yaml ...")
+with open('template.out.yaml', 'w') as fh:
+    fh.write(content)
