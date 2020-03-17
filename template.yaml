@@ -6,6 +6,17 @@ Globals:
     Timeout: 30
 
 Resources:
+  ScrapyLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: scrapy
+      Description: Dependencies for scrapy
+      ContentUri: dependencies/
+      CompatibleRuntimes:
+        - python3.6
+      LicenseInfo: 'MIT'
+      RetentionPolicy: Delete
+
   {% for item in config %}
   ApScraper{{ item['name'].replace(' ', '') }}:
     Type: AWS::Serverless::Function
@@ -16,11 +27,13 @@ Resources:
       Timeout: 30
       Policies:
         - AWSLambdaExecute
+      Layers:
+        - Ref: ScrapyLayer
       Environment:
         Variables:
           BUCKET: associated-press
       Events:
-        PullAp{{ item['name'].replace(' ', '') }}:
+        Pull:
           Type: Schedule
           Properties:
             Enabled: True
@@ -33,13 +46,13 @@ Resources:
     Properties:
       AlarmDescription: Broken Lambda for {{ item['name'].replace(' ', '') }}
       AlarmName: BrokenAPLambda{{ item['name'].replace(' ', '') }}
-      AlarmActions:
-        - arn:aws:sns:ap-southeast-2:279458537408:my-phone
+      # AlarmActions:
+      #   - arn:aws:sns:ap-southeast-2:279458537408:my-phone
       ComparisonOperator: GreaterThanOrEqualToThreshold
       EvaluationPeriods: 1
       MetricName: Errors
       Namespace: AWS/Lambda
-      Period: 60
+      Period: 900
       Dimensions:
         - Name: FunctionName
           Value:
@@ -48,3 +61,4 @@ Resources:
       Threshold: 1.0
       Statistic: Sum
   {% endfor %}
+
